@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>삼국시대 건국 이야기 - 역사 탐험</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        :root {
+            color-scheme: light;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F7F2E7;
+            background-image: radial-gradient(circle at top, rgba(255, 255, 255, 0.65), rgba(247, 242, 231, 0.9) 55%), url('https://www.transparenttextures.com/patterns/aged-paper.png');
+            color: #3E2C1C;
+            margin: 0;
+            min-height: 100vh;
+            padding-bottom: 120px;
+            word-break: keep-all;
+        }
+        .prose {
+            line-height: 1.75;
+        }
+        .keyword {
+            cursor: pointer;
+            font-weight: 600;
+            color: #8B4513;
+            text-decoration: underline dotted;
+            text-decoration-thickness: 2px;
+        }
+        .choice-btn, .story-select-btn, .primary-action-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .choice-btn:hover, .story-select-btn:hover, .primary-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px -2px rgba(0,0,0,0.18);
+        }
+        .history-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.35rem 0.6rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .history-note {
+            background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,239,213,0.9));
+            border-left: 4px solid #C08457;
+        }
+        .reflect-box {
+            background: linear-gradient(135deg, rgba(255,250,240,0.92), rgba(255,240,220,0.9));
+            border-left: 4px solid #DAA14C;
+        }
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.6);
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out;
+        }
+        .story-select-btn {
+            border: 2px solid #D2B48C;
+            background-color: rgba(255,248,220,0.92);
+            color: #7B3F00;
+        }
+        .story-select-btn:hover {
+            background-color: #D2B48C;
+            color: #fff;
+        }
+        .story-select-btn:disabled {
+            background-color: #E0E0E0;
+            border-color: #BDBDBD;
+            color: #9E9E9E;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .summary-list li::marker {
+            color: #8B4513;
+            font-weight: 700;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .choice-btn:hover, .story-select-btn:hover, .primary-action-btn:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container" class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Start Screen -->
+        <div id="start-screen" class="min-h-screen flex flex-col items-center justify-center">
+            <div class="w-full bg-white/80 backdrop-blur p-6 sm:p-10 rounded-3xl shadow-xl border border-amber-100 space-y-8">
+                <header class="space-y-3 text-center">
+                    <p class="text-sm tracking-wide text-amber-700 font-semibold uppercase">역사 기반 인터랙티브 러닝</p>
+                    <h1 class="text-3xl sm:text-4xl font-bold text-amber-900">삼국시대 건국 이야기</h1>
+                    <p class="text-center text-stone-600 text-base sm:text-lg max-w-2xl mx-auto">
+                        주몽, 박혁거세, 온조의 길을 따라가며 <strong>사료에 기록된 역사</strong>와 <strong>나의 선택</strong>을 비교해 보세요.
+                        이야기를 따라가며 퀴즈를 풀고, 실제 역사가 어떻게 전개되었는지 확인해 보세요.
+                    </p>
+                </header>
+
+                <section class="grid gap-4 sm:grid-cols-3 text-xs sm:text-sm text-stone-600">
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+                        <p class="text-amber-800 font-semibold flex items-center gap-2">🎯 학습 목표</p>
+                        <ul class="list-disc ml-4 space-y-1">
+                            <li>건국 신화와 실제 역사를 구분해 본다.</li>
+                            <li>역사적 선택의 의미를 사고한다.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+                        <p class="text-amber-800 font-semibold flex items-center gap-2">🗺️ 방법 안내</p>
+                        <ul class="list-disc ml-4 space-y-1">
+                            <li>주인공 이름을 적어 몰입감을 높이자.</li>
+                            <li>장면마다 나오는 퀴즈에 답해 보자.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+                        <p class="text-amber-800 font-semibold flex items-center gap-2">📑 참고 자료</p>
+                        <ul class="list-disc ml-4 space-y-1">
+                            <li>《삼국사기》, 《삼국유사》</li>
+                            <li>국립박물관 디지털 아카이브</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <div class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-center text-stone-700 font-semibold mb-2">먼저, 당신의 이름 또는 별칭을 알려주세요.</label>
+                        <input type="text" id="name" placeholder="주인공 이름" class="w-full max-w-md mx-auto block p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-600 transition text-base sm:text-lg">
+                    </div>
+
+                    <div class="space-y-4 text-center">
+                        <p class="text-stone-700 font-semibold">어떤 나라의 건국 이야기를 먼저 체험해 볼까요?</p>
+                        <div id="story-selection" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <button class="story-select-btn font-bold py-5 px-6 rounded-2xl text-lg" data-story="goguryeo">
+                                고구려<br><span class="text-sm font-normal">(주몽 이야기)</span>
+                            </button>
+                            <button class="story-select-btn font-bold py-5 px-6 rounded-2xl text-lg" data-story="silla">
+                                신라<br><span class="text-sm font-normal">(박혁거세 이야기)</span>
+                            </button>
+                            <button class="story-select-btn font-bold py-5 px-6 rounded-2xl text-lg" data-story="baekje">
+                                백제<br><span class="text-sm font-normal">(온조 이야기)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <div class="w-full bg-white/85 backdrop-blur p-6 sm:p-10 rounded-3xl shadow-xl border border-amber-100 space-y-6">
+                <header class="flex flex-col gap-4 border-b border-amber-100 pb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="space-y-1">
+                            <h2 id="story-header-title" class="text-2xl sm:text-3xl font-bold text-amber-900"></h2>
+                            <p id="story-header-subtitle" class="text-stone-600 text-sm sm:text-base"></p>
+                            <p id="story-year-badge" class="hidden history-badge bg-amber-100 text-amber-800 border border-amber-300"></p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 justify-end">
+                            <span id="quiz-progress" class="history-badge bg-emerald-100 text-emerald-700 border border-emerald-300 hidden"></span>
+                            <span id="history-status-badge" class="history-badge bg-amber-200 text-amber-800 border border-amber-400">QUIZ READY</span>
+                            <button id="open-summary-btn" class="primary-action-btn border border-amber-300 text-amber-700 px-4 py-2 rounded-full text-sm sm:text-base bg-amber-50 hover:bg-amber-100">학습 포인트 보기</button>
+                        </div>
+                    </div>
+                    <div id="timeline-wrapper" class="bg-amber-50/60 border border-amber-100 rounded-2xl p-4">
+                        <p class="text-sm text-amber-800 font-semibold flex items-center gap-2">⏳ 핵심 연표</p>
+                        <ul id="timeline-list" class="list-disc ml-4 mt-2 text-sm sm:text-base text-stone-700 space-y-1"></ul>
+                    </div>
+                </header>
+
+                <div id="previous-choice-display" class="hidden reflect-box mb-2 p-4 rounded-2xl text-base sm:text-lg space-y-2"></div>
+
+                <article id="story-text" class="prose prose-lg max-w-none text-base sm:text-xl leading-relaxed space-y-4"></article>
+
+                <section id="history-note" class="history-note border border-amber-100 rounded-2xl p-4 text-sm sm:text-base text-stone-700 space-y-2">
+                    <p class="font-semibold text-amber-900">📜 역사 포인트</p>
+                    <p id="history-note-text"></p>
+                    <p id="history-source-text" class="text-xs text-stone-500"></p>
+                </section>
+
+                <section id="metacognitive-question" class="hidden p-4 bg-orange-50 border-l-4 border-orange-400 rounded-r-2xl text-base sm:text-lg space-y-2">
+                    <p class="font-bold text-orange-900">🤔 생각해 보기</p>
+                    <p id="meta-question-text" class="text-orange-800"></p>
+                </section>
+
+                <section id="quiz-section" class="space-y-4">
+                    <div id="quiz-question" class="text-lg sm:text-xl font-bold text-amber-900"></div>
+                    <div id="quiz-options" class="grid grid-cols-1 gap-2"></div>
+                    <div id="quiz-feedback" class="hidden"></div>
+                </section>
+
+                <section id="post-narration" class="hidden prose prose-lg max-w-none bg-white/80 border border-amber-100 rounded-2xl p-5 text-base sm:text-lg text-stone-700 space-y-3"></section>
+
+                <div class="flex justify-end">
+                    <button id="next-scene-btn" class="hidden w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all">다음 장면으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Screen -->
+        <div id="report-screen" class="hidden">
+            <div class="w-full bg-white/85 backdrop-blur p-6 sm:p-10 rounded-3xl shadow-xl border border-amber-100 space-y-8">
+                <header class="space-y-2 text-center">
+                    <h2 id="report-title" class="text-3xl font-bold text-amber-900"></h2>
+                    <p id="report-subtitle" class="text-stone-600 text-base sm:text-lg"></p>
+                </header>
+
+                <section class="grid gap-6 lg:grid-cols-[3fr_2fr]">
+                    <div class="bg-amber-50/70 border border-amber-100 rounded-2xl p-5 space-y-4">
+                        <h3 class="text-xl font-bold text-amber-800">당신의 이야기</h3>
+                        <div id="report-content" class="space-y-4 text-base sm:text-lg prose prose-lg max-w-none"></div>
+                    </div>
+                    <aside class="space-y-4">
+                        <div class="bg-white/85 border border-amber-100 rounded-2xl p-5 space-y-3">
+                            <h3 class="text-lg font-bold text-amber-800">퀴즈 결과</h3>
+                            <p id="report-stats" class="text-sm text-stone-600"></p>
+                            <ul id="report-choice-list" class="space-y-3 text-sm sm:text-base"></ul>
+                        </div>
+                        <div class="bg-white/85 border border-amber-100 rounded-2xl p-5 space-y-3">
+                            <h3 class="text-lg font-bold text-amber-800">더 알아보기</h3>
+                            <ul id="report-resources" class="list-disc ml-5 text-sm text-stone-600 space-y-1"></ul>
+                        </div>
+                        <button id="download-report-btn" class="primary-action-btn w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3 px-6 rounded-xl text-lg">
+                            보고서 이미지로 저장하기
+                        </button>
+                        <button id="restart-btn" class="w-full border border-stone-300 text-stone-700 font-bold py-3 px-6 rounded-xl text-base choice-btn bg-white hover:bg-stone-100">
+                            다른 신화 체험하기
+                        </button>
+                    </aside>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Definition Modal -->
+    <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
+        <div id="modal-content" class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 border border-stone-200 transform scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl sm:text-2xl font-bold text-amber-900"></h3>
+                <button id="modal-close-btn" class="text-stone-500 hover:text-stone-800 text-3xl leading-none">&times;</button>
+            </div>
+            <p id="modal-text" class="text-stone-700 text-base sm:text-lg"></p>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div id="summary-modal" class="fixed inset-0 z-40 flex items-center justify-center p-4 hidden modal-backdrop">
+        <div class="modal-content bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-6 sm:p-8 border border-amber-100 transform scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-amber-900">학습 포인트 정리</h3>
+                <button id="summary-close-btn" class="text-stone-500 hover:text-stone-800 text-3xl leading-none">&times;</button>
+            </div>
+            <div id="summary-modal-body" class="space-y-4 text-stone-700 text-base sm:text-lg"></div>
+        </div>
+    </div>
+
+    <!-- Persistent Navigation -->
+    <div id="nav-controls" class="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-3 z-40">
+        <button id="go-previous-btn" class="hidden bg-stone-700/90 hover:bg-stone-600 text-white font-semibold py-2 px-5 rounded-full shadow-lg transition-all pointer-events-auto">이전 장면</button>
+        <button id="back-to-start-btn" class="hidden bg-indigo-600/95 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-full shadow-lg transition-all pointer-events-auto">처음으로</button>
+    </div>
+
+    <footer class="fixed bottom-0 left-0 w-full bg-stone-100/85 backdrop-blur-sm py-3 px-4 text-center text-stone-500 border-t border-stone-200">
+        <p class="text-sm">글쓴이: 핑키네 | 교육용 역사 탐험 페이지</p>
+    </footer>
+
+    <script>
+    (() => {
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const reportScreen = document.getElementById('report-screen');
+
+        const storyTextEl = document.getElementById('story-text');
+        const prevChoiceDisplay = document.getElementById('previous-choice-display');
+        const metaQuestionEl = document.getElementById('metacognitive-question');
+        const metaQuestionTextEl = document.getElementById('meta-question-text');
+        const historyNoteTextEl = document.getElementById('history-note-text');
+        const historySourceTextEl = document.getElementById('history-source-text');
+        const historyStatusBadge = document.getElementById('history-status-badge');
+        const timelineListEl = document.getElementById('timeline-list');
+        const storyHeaderTitle = document.getElementById('story-header-title');
+        const storyHeaderSubtitle = document.getElementById('story-header-subtitle');
+        const storyYearBadge = document.getElementById('story-year-badge');
+        const quizQuestionEl = document.getElementById('quiz-question');
+        const quizOptionsEl = document.getElementById('quiz-options');
+        const quizFeedbackEl = document.getElementById('quiz-feedback');
+        const nextSceneBtn = document.getElementById('next-scene-btn');
+        const quizProgressEl = document.getElementById('quiz-progress');
+        const postNarrationEl = document.getElementById('post-narration');
+
+        const modalContainer = document.getElementById('modal-container');
+        const modalContent = document.getElementById('modal-content');
+        const modalTitle = document.getElementById('modal-title');
+        const modalText = document.getElementById('modal-text');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        const summaryModal = document.getElementById('summary-modal');
+        const summaryModalBody = document.getElementById('summary-modal-body');
+        const summaryCloseBtn = document.getElementById('summary-close-btn');
+        const openSummaryBtn = document.getElementById('open-summary-btn');
+
+        const navPrevBtn = document.getElementById('go-previous-btn');
+        const navRestartBtn = document.getElementById('back-to-start-btn');
+
+        const nameInput = document.getElementById('name');
+
+        const reportTitleEl = document.getElementById('report-title');
+        const reportSubtitleEl = document.getElementById('report-subtitle');
+        const reportContentEl = document.getElementById('report-content');
+        const reportStatsEl = document.getElementById('report-stats');
+        const reportChoiceListEl = document.getElementById('report-choice-list');
+        const reportResourcesEl = document.getElementById('report-resources');
+        const downloadReportBtn = document.getElementById('download-report-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        let currentStoryId = null;
+        let currentStoryData = null;
+        let currentSceneIndex = 0;
+        let sceneHistory = [];
+        const userInfo = { name: '' };
+        const userResponses = {};
+        let pendingSummary = null;
+
+        const definitions = {
+            '천제': { title: '천제(天帝)', text: '하늘을 다스리는 임금으로, 고대 신화에서 최고 신을 가리킵니다.' },
+            '하백': { title: '하백(河伯)', text: '강을 관장하는 신으로 여겨졌던 존재입니다.' },
+            '해모수': { title: '해모수(解慕漱)', text: '고구려 건국 신화에서 천제의 아들로 등장하는 주몽의 아버지입니다.' },
+            '유화': { title: '유화(柳花)', text: '주몽의 어머니로, 하백의 딸입니다.' },
+            '주몽': { title: '주몽(朱蒙)', text: '고구려 건국자 동명성왕으로 추앙받은 인물입니다.' },
+            '혁거세': { title: '혁거세(赫居世)', text: '신라의 시조 박혁거세를 가리키는 이름입니다.' },
+            '계룡': { title: '계룡(鷄龍)', text: '닭의 형상을 한 용으로, 알영 설화에 등장합니다.' },
+            '대소': { title: '대소(帶素)', text: '부여 왕자 중 한 명으로, 주몽을 시기했던 인물입니다.' },
+            '오이': { title: '오이(吾以)', text: '주몽을 따랐던 충신으로, 고구려 초기 공신입니다.' },
+            '마리': { title: '마리(麻離)', text: '주몽과 함께한 충신으로 알려져 있습니다.' },
+            '협보': { title: '협보(陜父)', text: '주몽을 도왔던 충신 중 한 명입니다.' },
+            '엄리대수': { title: '엄리대수(淹利大水)', text: '주몽이 남하하며 마주쳤던 큰 강을 가리키는 표현입니다.' },
+            '다물': { title: '다물(多勿)', text: '고구려어로 “옛 땅을 회복한다”는 뜻을 담은 구호입니다.' },
+            '박혁거세': { title: '박혁거세(朴赫居世)', text: '신라의 시조로, 박 모양의 알에서 태어났다는 설화로 유명합니다.' },
+            '알영': { title: '알영(閼英)', text: '박혁거세의 왕비로 전해지는 인물입니다.' },
+            '계룡': { title: '계룡(鷄龍)', text: '계림 설화에 등장하는 닭 모양의 용을 의미합니다.' },
+            '서라벌': { title: '서라벌(徐羅伐)', text: '신라의 옛 수도 이름이며, 후대 “서울”의 어원이 되었습니다.' },
+            '계림': { title: '계림(鷄林)', text: '\'닭의 숲\'이라는 뜻으로 신라의 별칭입니다.' },
+            '온조': { title: '온조(溫祚)', text: '백제의 건국자이자 초대 왕입니다.' },
+            '비류': { title: '비류(沸流)', text: '온조의 형으로, 미추홀에 정착하려 했던 인물입니다.' },
+            '위례성': { title: '위례성(慰禮城)', text: '백제의 첫 수도로 추정되는 지역으로, 오늘날 서울 일대로 비정됩니다.' },
+            '미추홀': { title: '미추홀(彌鄒忽)', text: '비류가 정착하려 했던 곳으로, 현재의 인천 지역으로 알려져 있습니다.' },
+            '십제': { title: '십제(十濟)', text: '백제 건국 초기에 사용된 국호로 “열 명의 신하가 세운 나라”라는 뜻입니다.' }
+        };
+
+        function interpolate(text) {
+            return text.replace(/\[이름\]/g, userInfo.name);
+        }
+
+        function parseTextWithKeywords(text) {
+            if (!text) return '';
+            const keywords = Object.keys(definitions);
+            if (!keywords.length) return text;
+            const regex = new RegExp(`(${keywords.map(k => k.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')).join('|')})`, 'g');
+            return text.replace(regex, '$1');
+        }
+
+        const storyDatasets = {
+            goguryeo: {
+                title: '고구려 건국 신화',
+                defaultName: '동명성왕',
+                subtitle: '기원전 37년, 졸본에서 시작된 동북아 대국의 첫걸음',
+                timeline: [
+                    '기원전 58년: 주몽이 부여에서 성장',
+                    '기원전 37년: 주몽이 졸본에서 고구려 건국',
+                    '기원전 37~기원전 19년: 동명성왕 재위'
+                ],
+                summary: [
+                    '주몽은 천제와 하백의 혈통을 잇는 신성한 존재로 묘사됩니다.',
+                    '부여에서 남하하여 졸본에 도착하기까지 수많은 추격을 따돌렸습니다.',
+                    '“다물 정신”은 고구려의 끊임없는 개척과 확장 의지를 상징합니다.'
+                ],
+                resources: [
+                    '《삼국사기》 고구려본기 동명성왕조',
+                    '《삼국유사》 기이편 제1 - 동명왕 본기',
+                    '국립중앙박물관, 고구려의 건국 자료'
+                ],
+                sequence: [
+                    {
+                        id: 'g0',
+                        year: '기원전 58년',
+                        narration: () => `나는 **[이름]**. 사람들은 내가 하늘의 신 해모수와 물의 신 하백의 딸 유화 사이에서 태어난 특별한 아이라고 이야기한다. 어느 추운 새벽, 얼음처럼 단단하던 알이 갈라지며 따뜻한 빛이 번져 나가자 모두가 숨을 멈췄다.<br><br>부여 궁정 마당에서 나는 활을 쏘며 자랐다. 화살이 과녁을 맞힐 때마다 친구들은 환호했고, 대소는 “이 아이가 더 유명해지면 어쩌지?”라고 속으로 걱정하는 표정이었다. 밤이면 연못에 비친 별을 보며 ‘강과 산이 만나는 곳에 나라를 세우면 좋겠어’라고 내 마음속 지도를 그렸다.<br><br>어느 날 어머니 유화가 내 손을 꼭 잡고 말한다. “여기 머무르면 네 빛이 숨을 수도 있어. 남쪽으로 내려가 너만의 나라를 만들어 보렴.” 그 말은 번개처럼 내 마음을 깨웠다.`,
+                        postNarration: () => `그날 밤 나는 모닥불 앞에 앉아 어머니가 건네 준 오곡 씨앗을 품에 넣었다. “길에서 만난 사람들과 나누면 모두가 배불러질 거야.” 어머니의 말은 여행 지도처럼 나를 이끌어 줬다.<br><br>나는 활과 칼을 챙기고 충신들과 눈을 맞췄다. 모두 떨리는 손을 꼭 쥐었지만, 우리는 함께 고개를 끄덕였다. 신화 속에서는 내가 빛 속에서 태어났다고 하지만, 《삼국사기》에는 주몽이 새로운 나라를 세우기 위해 부여를 떠났다고 기록돼 있다. 이제 진짜 모험이 시작된다.`,
+                        question: {
+                            prompt: '왕자들의 시기와 음모가 드러난 이때, 주몽이 실제로 선택한 길은 무엇일까요?',
+                            options: [
+                                {
+                                    text: '충신들과 함께 남쪽으로 떠나 새 터전을 찾는다.',
+                                    correct: true,
+                                    feedback: '주몽은 어머니의 당부를 따르고 충신들과 함께 남쪽으로 향했습니다.'
+                                },
+                                {
+                                    text: '부여에 남아 왕자들과 권력을 다투며 버틴다.',
+                                    correct: false,
+                                    feedback: '부여에 남았다면 대소의 위협을 피하기 어려웠을 것입니다.'
+                                }
+                            ],
+                            correctSummary: '주몽은 부여를 떠나 남쪽으로 내려가 졸본으로 향하며 고구려 건국의 발판을 마련했습니다.'
+                        },
+                        historyNote: '주몽 탄생 신화는 《삼국유사》에 전하며 고구려 왕실의 신성성을 강조합니다.',
+                        historySource: '출전: 삼국유사 권1, 기이편',
+                        reflection: '익숙한 터전을 떠나는 용기는 어떻게 생겨날까요?'
+                    },
+                    {
+                        id: 'g1',
+                        year: '기원전 38년',
+                        narration: () => `어머니가 챙겨 준 오곡 씨앗을 품고 오이, 마리, 협보와 함께 남쪽으로 달렸다. 밤에는 모닥불 옆에서 등을 맞대고 잠을 잤고, 낮에는 차가운 바람을 이겨 내며 발걸음을 옮겼다. 며칠 뒤, 앞을 가로막은 것은 폭이 넓고 물살이 빠른 엄리대수였다. 뒤에서는 부여의 병사들이 점점 가까워지고 있었다.<br><br>강물은 거대한 북을 치듯 쿵쿵 울렸고, 새들은 불안한 소리를 냈다. 우리도 겁이 났지만 서로의 손을 잡으며 “우리가 함께라면 건널 수 있어!” 하고 용기를 모았다.`,
+                        postNarration: () => `나는 활을 거꾸로 잡고 강물을 내리쳤다. “하늘과 강의 신이여, 우리에게 길을 보여 주세요!” 그러자 신화 속에서 전해지는 것처럼 은빛 물고기와 커다란 자라가 나타나 등을 맞대었다. 우리는 그 위를 조심조심 달려 건넜다.<br><br>강을 건넌 뒤 우리는 불을 피워 몸을 녹였다. 어린 병사가 “정말 신이 도와준 걸까?”라고 묻자 나는 웃으며 말했다. “물고기와 자라 이야기는 신화지만, 우리가 강을 건너 남쪽으로 내려갔다는 사실은 역사책에도 똑같이 기록돼 있단다.” 모두의 얼굴에 다시 힘이 돌아왔다.`,
+                        question: {
+                            prompt: '거센 강과 추격대 사이에 갇힌 주몽 일행은 어떻게 위기를 벗어났을까요?',
+                            options: [
+                                {
+                                    text: '하늘과 강의 신에게 기도하여 도움을 구한다.',
+                                    correct: true,
+                                    feedback: '기도 끝에 물고기와 자라가 몸을 맞대어 다리가 되었다는 기록이 전해집니다.'
+                                },
+                                {
+                                    text: '서둘러 뗏목을 만들어 스스로 강을 건넌다.',
+                                    correct: false,
+                                    feedback: '뗏목을 만드는 동안 추격대를 피하기 어려웠을 것입니다.'
+                                }
+                            ],
+                            correctSummary: '주몽은 활로 강을 치며 하늘에 간구했고, 물고기와 자라가 다리를 이루어 추격대를 따돌릴 수 있었습니다.'
+                        },
+                        historyNote: '《삼국사기》에는 물고기와 자라가 다리를 이루었다는 신화적 장면이 수록되어 왕권의 신성성을 강조합니다.',
+                        historySource: '출전: 삼국사기 권13, 고구려본기 동명성왕조',
+                        reflection: '절체절명의 순간, 신앙과 결단 중 무엇이 더 큰 힘이 되었을까요?'
+                    },
+                    {
+                        id: 'g2',
+                        year: '기원전 37년',
+                        narration: () => `강을 건너자 하얀 안개가 걷히며 졸본의 모습이 드러났다. 낮은 산에는 눈이 얇게 내려앉아 있었고, 골짜기에는 투명한 물이 흐르고 있었다. 바람은 송홧가루와 흙 냄새를 가져와 “어서 와!” 하고 인사하는 것 같았다. 멀리서 사슴 떼가 뛰어오르고, 하늘 위에서는 독수리가 원을 그렸다.<br><br>우리는 무너진 토성과 꺼져 가는 아궁이를 보며 예전에 사람들이 살았던 흔적을 찾았다. 조심스럽게 걸으며 “여기가 우리 새 나라가 될까?” 하고 서로에게 물었다.`,
+                        postNarration: () => `나는 사람들을 모닥불 주위로 불렀다. “우리가 겪은 힘든 여행을 잊지 말자. 이제는 우리가 직접 길을 만들고 잃어버린 땅을 되찾자.” 모두가 고개를 끄덕이며 “다물!”을 외쳤다. 다물은 “잃은 땅을 되찾자”라는 뜻이다.<br><br>젊은 전사들은 땅에 손을 얹고 약속했고, 아이들은 “고구려!”를 외치며 노래를 만들었다. 신화 속 이야기와 실제 역사 모두 이곳에서 고구려가 시작됐다고 전한다. 새벽이 밝자 첫 깃발이 바람을 타고 힘차게 펄럭였다.`,
+                        question: {
+                            prompt: '새로운 나라를 세울 주몽이 가장 앞세운 정신은 무엇이었을까요?',
+                            options: [
+                                {
+                                    text: '잃어버린 옛 땅을 되찾자는 “다물” 정신을 선포한다.',
+                                    correct: true,
+                                    feedback: '고구려는 처음부터 국력 확장과 개척을 중요하게 여겼습니다.'
+                                },
+                                {
+                                    text: '즉시 평화를 최우선으로 삼고 외부와의 대립을 피한다.',
+                                    correct: false,
+                                    feedback: '평화는 중요하지만, 고구려는 스스로를 지킬 힘을 기본으로 삼았습니다.'
+                                }
+                            ],
+                            correctSummary: '주몽은 “다물” 정신을 선포하며 강력한 국가로 성장할 토대를 마련했습니다.'
+                        },
+                        historyNote: '고구려의 확장 정책은 “다물” 정신으로 요약되며, 광개토대왕의 대정복으로 이어졌습니다.',
+                        historySource: '출전: 광개토왕릉비 서문',
+                        reflection: '강한 힘과 백성의 안정을 함께 추구하려면 어떤 균형 감각이 필요할까요?'
+                    }
+                ]
+            },
+            silla: {
+                title: '신라 건국 신화',
+                defaultName: '박혁거세',
+                subtitle: '서라벌에서 시작된 천년 왕국의 이야기',
+                timeline: [
+                    '기원전 69년: 나정에서 박혁거세 탄생',
+                    '기원전 57년: 여섯 촌장이 박혁거세를 추대하여 사로국 건국',
+                    '기원전 57~서기 4년: 박혁거세 거서간 재위'
+                ],
+                summary: [
+                    '박혁거세는 박 모양의 알에서 태어나 신성성을 인정받았습니다.',
+                    '알영 부인과 계림 설화는 왕과 왕비의 영적인 권위를 강조합니다.',
+                    '초기 국호 사로/서라벌은 훗날 “서울”의 어원이 되었습니다.'
+                ],
+                resources: [
+                    '《삼국사기》 신라본기 박혁거세조',
+                    '《삼국유사》 기이편 제1 - 혁거세왕',
+                    '국립경주박물관, 신라 건국 자료'
+                ],
+                sequence: [
+                    {
+                        id: 's0',
+                        year: '기원전 57년',
+                        narration: () => `나는 **[이름]**. 진한 땅에는 여섯 마을이 따로따로 살고 있었다. 어느 새벽, 나정 우물 위에 금빛 안개가 내리고 흰 말이 무릎을 꿇었다. 박 모양의 알이 갈라지며 밝은 빛이 번져 나가자 사람들도, 숲속 짐승들도 모두 조용해졌다. “이 아이는 분명 특별한 사명을 가진 걸 거야.”라는 속삭임이 들렸다.<br><br>나는 갓 태어난 아기였지만 사람들의 따뜻한 숨결과 우물가의 냉기를 기억한다. 해가 뜨자 솔잎이 햇살을 받아 반짝였고, 모두가 새로운 일이 시작될 것만 같았다.`,
+                        postNarration: () => `여섯 촌장은 우물가에 모여 나를 조심스럽게 안았다. “하늘이 보낸 아이가 틀림없다.” 사람들의 마음이 하나로 모이기 시작했다. 그날부터 사람들은 나를 혁거세라고 부르며 함께 모일 약속을 세웠다.<br><br>이 장면은 신화로 전해지지만, 실제로 흩어져 있던 마을들이 한 지도자를 세워 나라를 만들었다는 사실은 사서에 기록돼 있다. 밤이 되면 우물 주변에 횃불이 켜지고, 사람들은 “함께 살자”는 약속을 나눴다.`,
+                        question: {
+                            prompt: '여섯 촌장들은 이 신비한 탄생을 보고 어떤 결정을 내렸을까요?',
+                            options: [
+                                {
+                                    text: '박혁거세를 왕으로 추대하여 나라를 하나로 묶는다.',
+                                    correct: true,
+                                    feedback: '촌장들은 하늘의 뜻이라 여겨 박혁거세를 만장일치로 추대했습니다.'
+                                },
+                                {
+                                    text: '경험 많은 촌장 중 한 사람을 임시 왕으로 세운다.',
+                                    correct: false,
+                                    feedback: '모두가 서로를 추천하며 결정을 내리지 못했고, 결국 박혁거세를 왕으로 모셨습니다.'
+                                }
+                            ],
+                            correctSummary: '여섯 촌장은 박혁거세를 세워 분열된 마을을 하나의 사로국으로 통합했습니다.'
+                        },
+                        historyNote: '《삼국사기》는 촌장들이 하늘의 뜻을 따랐다고 기록하며 박혁거세의 합법성과 신성성을 강조합니다.',
+                        historySource: '출전: 삼국사기 권1',
+                        reflection: '지도자의 덕목은 출신보다 공동체의 기대에 어떻게 부응하느냐에 달려 있지 않을까요?'
+                    },
+                    {
+                        id: 's1',
+                        year: '기원전 55년',
+                        narration: () => `나라가 점점 안정되자 백성들과 함께 나라를 돌볼 왕비를 찾고 싶었다. 어느 흐린 날, 사량리 알영정에서 물이 솟구치더니 닭을 닮은 계룡이 하늘을 돌았다. 물기둥 속에서 한 아이가 내려왔고, 물방울이 떨어질 때마다 무지갯빛이 주변을 감쌌다. 아이의 눈은 새벽별처럼 반짝였지만 입술은 닭 부리 모양이었다.<br><br>계룡이 사라지자 은은한 향기가 남았고, 우물가 버드나무 잎이 조용히 흔들렸다. 신하들은 놀라 무릎을 꿇었고, 아이를 감싼 물빛은 마치 하늘이 덮어 준 망토 같았다.`,
+                        postNarration: () => `나는 아이의 입술을 우물물로 씻겨 주었다. 물방울이 떨어지자 부리가 사라지고 맑은 미소가 피어났다. 사람들은 놀란 숨을 몰아쉬었고, 노인들은 “하늘과 땅이 마음을 이어 주셨다”고 말했다.<br><br>나는 알영의 손을 잡았다. “우리 함께 백성을 지켜 봅시다.” 이 장면은 신화로 전해지지만, 실제로 알영이 왕비가 되어 나라를 도왔다는 기록이 남아 있다. 그날 밤, 왕궁에는 닭 울음 대신 잔잔한 종소리가 울려 퍼졌다.`,
+                        question: {
+                            prompt: '왕비로 어떤 선택을 내렸을까요?',
+                            options: [
+                                {
+                                    text: '신비로운 탄생을 인정하고 알영을 왕비로 맞이한다.',
+                                    correct: true,
+                                    feedback: '알영은 얼굴을 씻자 부리가 사라졌고, 훗날 현명한 왕비로 기록되었습니다.'
+                                },
+                                {
+                                    text: '겉모습이 불길하다며 다른 후보를 찾는다.',
+                                    correct: false,
+                                    feedback: '겉모습만으로 판단했다면 신라 초기 왕권의 상징성을 잃었을 것입니다.'
+                                }
+                            ],
+                            correctSummary: '박혁거세는 알영을 왕비로 맞이하고 백성과 함께 나라의 기틀을 다졌습니다.'
+                        },
+                        historyNote: '알영 부인의 설화는 왕비의 신성함을 강조하며, 부리를 씻자 사라졌다는 기록이 전합니다.',
+                        historySource: '출전: 삼국유사 권1, 혁거세왕',
+                        reflection: '사람을 평가할 때 겉모습과 내면 중 무엇을 더 우선해야 할까요?'
+                    },
+                    {
+                        id: 's2',
+                        year: '기원전 50년',
+                        narration: () => `왕비와 함께 서라벌 언덕을 돌며 백성을 살펴보니 흩어졌던 여섯 마을이 하나의 큰 가족처럼 움직이기 시작했다. 장터에서는 서로 다른 말을 쓰던 사람들이 한 솥에서 국을 나눴고, 모닥불 옆에서는 전쟁 이야기 대신 내일의 꿈이 오갔다. 모두가 함께 부를 나라 이름이 필요했다. 맑은 아침 햇살이 들판의 안개를 걷어낼 때 촌장들이 나를 둘러싸고 기다렸다.<br><br>언덕 아래에는 나무로 만든 울타리가 단단히 세워져 있었고, 들판에서는 소와 말이 나란히 밭을 갈았다. 아이들은 흙바닥에 이름 후보를 적어 보며 “어떤 이름이 좋을까?” 하고 웃었다.`,
+                        postNarration: () => `나는 숨을 크게 들이마시고 말했다. “우리가 첫발을 내딛은 이름, 사로. 이제 서라벌이라고 부르자.” 사람들은 손을 맞잡고 환호했다. 바람은 멀리서 닭 울음소리를 실어 왔고, 빛 한 줄기가 새 도시 위로 내려왔다.<br><br>이 장면은 이야기처럼 들리지만 ‘사로’와 ‘서라벌’이라는 이름이 역사 기록에도 남아 있어 우리가 어떤 마음으로 나라를 만들었는지 알려 준다. 밤이 되자 서라벌의 집집마다 등불이 켜지고, 사람들은 새 이름 아래서 내일의 계획을 나눴다.`,
+                        question: {
+                            prompt: '초기 신라가 공식 국호로 채택한 이름은 무엇일까요?',
+                            options: [
+                                {
+                                    text: '서라벌(사로)',
+                                    correct: true,
+                                    feedback: '사로국, 서라벌은 신라의 초기 국호이자 수도 이름으로 사용되었습니다.'
+                                },
+                                {
+                                    text: '계림',
+                                    correct: false,
+                                    feedback: '계림은 후대에 사용된 별칭으로, 초기 공식 국호는 아니었습니다.'
+                                }
+                            ],
+                            correctSummary: '사로/서라벌이라는 이름은 훗날 “서울”의 어원이 되었으며, 신라 왕조의 정체성을 다졌습니다.'
+                        },
+                        historyNote: '사로국이라는 이름이 사서에 기록되어 있으며, 계림은 후대에 새로 붙은 별칭입니다.',
+                        historySource: '출전: 삼국사기 권1, 삼국유사 권1',
+                        reflection: '국가의 이름은 백성의 정체성과 어떤 관계를 맺고 있을까요?'
+                    }
+                ]
+            },
+            baekje: {
+                title: '백제 건국 신화',
+                defaultName: '온조',
+                subtitle: '한강 기슭에서 펼쳐진 새로운 왕국의 이야기',
+                timeline: [
+                    '기원전 19년: 온조와 비류 형제가 남하',
+                    '기원전 18년: 위례성에 백제 건국',
+                    '기원전 18~서기 28년: 온조왕 재위'
+                ],
+                summary: [
+                    '온조와 비류의 남하는 백제 건국의 중심 설화입니다.',
+                    '위례성은 한강을 끼고 방어와 농업이 유리한 지역으로 선택되었습니다.',
+                    '초기 국호 십제는 백성의 결집을 의미했고, 곧 백제로 개칭되었습니다.'
+                ],
+                resources: [
+                    '《삼국사기》 백제본기 온조왕조',
+                    '《삼국유사》 기이편 제2 - 온조왕',
+                    '한성백제박물관, 한성백제 시대 자료'
+                ],
+                sequence: [
+                    {
+                        id: 'b0',
+                        year: '기원전 19년',
+                        narration: () => `나는 **[이름]**. 겨울바람이 부여 성벽을 흔들던 날, 형 비류와 나는 아버지 주몽의 뜻을 이어 새 나라를 세우기로 다짐했다. 열 명의 신하가 깃발을 들었고, 백성들은 입술을 깨물며 긴 행렬을 만들었다. 별빛 아래에서 타오르는 횃불은 “우리가 해낼 수 있어!”라는 약속처럼 보였다.<br><br>떠나기 전 우리는 졸본 성벽에 이마를 대고 조상에게 인사했다. 사람들은 곡식, 솥, 아이들의 장난감까지 챙겨 보따리에 넣었고, 노인들은 오래된 노래를 부르며 마음을 다잡았다.`,
+                        postNarration: () => `우리는 강을 따라 내려가며 새로운 하늘 아래에서 잠을 청했다. 비가 내리면 어깨를 적셨고, 바람이 불면 등을 떠밀었다. 아이들은 부모 손을 꼭 잡고 낯선 별자리를 올려다봤고, 병사들은 말안장을 베개 삼아 새벽을 맞았다. 누구도 미래를 확신할 수 없었지만, 서로의 숨결은 같은 방향을 가리켰다.<br><br>길 위에서 우리는 각자의 꿈을 나눴다. 어떤 이는 넓은 강가에 제방을 세우겠다고 했고, 또 다른 이는 백성에게 글을 가르칠 학교를 세우겠다고 약속했다. 밤마다 우리는 장작불을 피우고 “백성이 주인인 나라”를 외치며 새로운 세상을 그렸다. 온조가 남쪽으로 내려와 나라를 세웠다는 이야기는 역사책에도 그대로 전해진다.`,
+                        question: {
+                            prompt: '남쪽으로 내려온 온조 일행이 새 터전을 찾은 이유는 무엇일까요?',
+                            options: [
+                                {
+                                    text: '새로운 나라를 세우고 아버지의 위업을 잇기 위해서이다.',
+                                    correct: true,
+                                    feedback: '온조와 비류는 부여에서 벗어나 독자적인 나라를 세우기 위해 남하했습니다.'
+                                },
+                                {
+                                    text: '부여에서 추방당했기 때문에 어쩔 수 없이 떠났다.',
+                                    correct: false,
+                                    feedback: '온조는 스스로 새로운 나라를 세우려는 결단을 내렸습니다.'
+                                }
+                            ],
+                            correctSummary: '온조는 아버지의 정신을 이어받아 새 왕국을 건설하기 위해 남쪽으로 향했습니다.'
+                        },
+                        historyNote: '온조와 비류의 남하는 《삼국사기》와 《삼국유사》에 전해집니다.',
+                        historySource: '출전: 삼국사기 권23',
+                        reflection: '새로운 공동체를 세우기 위한 용기는 어디에서 비롯될까요?'
+                    },
+                    {
+                        id: 'b1',
+                        year: '기원전 18년',
+                        narration: () => `한강의 물빛이 붉은 석양을 머금었을 때 우리는 마침내 새로운 터전을 보았다. 강물은 넓게 흐르고, 산은 성벽처럼 둘러싸고 있었다. 갈대는 물안개 속에서 흔들렸고, 멀리 사슴 떼가 강에서 물을 마셨다. 나는 강과 산이 감싸 방어가 쉬운 위례성을 마음에 두었다. 형 비류는 바닷바람이 부는 미추홀이 교역과 풍요에 좋다며 미소 지었다.<br><br>우리는 두 곳을 돌아보며 백성들의 표정을 살폈다. 위례성의 흙은 손에 쥐면 축축했고, 강가는 검은 빛을 띠었다. 미추홀은 파도가 높고 짠 바람이 옷깃을 파고들었지만, 넓은 바다는 새 시장을 열어 줄 것처럼 보였다.`,
+                        postNarration: () => `나는 형의 손을 꼭 잡았다. “우리가 다른 생각을 품어도, 백성을 지키는 길을 먼저 택해야 하오.” 갈대밭은 우리 말을 듣는 듯 조용히 흔들렸고, 저녁 햇살 속 강물은 금빛으로 빛났다. 결국 나는 위례성을 도읍으로 정했다. 새벽이 밝자 물안개가 걷히고, 산들은 새 나라를 지켜 줄 병사처럼 서 있었다. 백성들은 새 땅에 첫발을 남겼고, 환호는 비류의 부대가 떠나는 북소리와 뒤섞여 오래 울렸다.<br><br>돌을 나르던 청년은 “이제 우리 아이도 안전한 곳에서 자라겠죠?”라고 물었다. 나는 그의 어깨를 두드렸다. “우리는 강을 지키고 산을 경계 삼아 백제를 든든하게 세울 거다.” 위례성이 첫 수도가 되었다는 사실은 《삼국사기》에도 분명히 적혀 있다.`,
+                        question: {
+                            prompt: '백제의 첫 수도로 실제 선택된 곳은 어디일까요?',
+                            options: [
+                                {
+                                    text: '위례성',
+                                    correct: true,
+                                    feedback: '위례성은 한강을 끼고 있어 방어와 농업에 모두 유리했습니다.'
+                                },
+                                {
+                                    text: '미추홀',
+                                    correct: false,
+                                    feedback: '미추홀은 바다와 가까웠지만, 습지와 염분 때문에 정착이 어려웠습니다.'
+                                }
+                            ],
+                            correctSummary: '온조는 위례성에 도읍을 정하고 나라의 기틀을 다졌습니다.'
+                        },
+                        historyNote: '《삼국사기》는 위례성이 백제의 첫 수도였다고 전합니다.',
+                        historySource: '출전: 삼국사기 권23',
+                        reflection: '도읍을 정할 때 지리, 경제, 군사 중 무엇을 우선해야 할까요?'
+                    },
+                    {
+                        id: 'b2',
+                        year: '기원전 18년',
+                        narration: () => `도읍을 정한 뒤에도 고민은 이어졌다. 불빛이 가득한 위례성의 밤, 나는 열 명의 신하와 둥근 달을 바라보며 나라 이름을 의논했다. 성벽 위 횃불은 좀처럼 꺼지지 않았고, 강가에서는 일을 마친 백성들이 우리 곁에 앉아 이야기를 들었다. 처음엔 나라를 십제라 불렀지만, 사람들의 눈빛에는 새 이름을 바라는 기대가 보였다.<br><br>신하들은 각자의 생각을 내놓았다. 어떤 이는 강의 흐름을 따르자 했고, 어떤 이는 함께 모인 백성의 기쁨을 담자고 했다. 달빛은 우리 얼굴을 천천히 비추며 올바른 한마디를 기다렸다.`,
+                        postNarration: () => `나는 성문 앞에 서서 백성을 바라봤다. 새벽안개 속에서 아이들의 숨이 하얗게 퍼졌고, 장정들의 창끝에는 별빛이 맺혔다. “이제 우리 나라를 백제라 부르자. 백성이 기쁘게 따르는 나라, 함께 웃는 나라가 되자.” 함성은 강바람을 타고 멀리 퍼졌고 북과 징이 울리며 축제가 시작됐다.<br><br>새 이름을 새긴 나무패가 탑처럼 쌓이고, 장터에서는 즉석 잔치가 열렸다. 우리는 한강에 비친 달빛을 등에 지고 새로운 시대를 열었다. ‘백제’라는 이름이 공식적으로 쓰였다는 기록은 지금도 남아 있어 그날의 결정을 전해 준다.`,
+                        question: {
+                            prompt: '결국 온조는 어떤 이름으로 나라를 불렀을까요?',
+                            options: [
+                                {
+                                    text: '백제',
+                                    correct: true,
+                                    feedback: '“백성이 기쁘게 따랐다”는 의미로 해석되며, 실제 국호가 되었습니다.'
+                                },
+                                {
+                                    text: '십제',
+                                    correct: false,
+                                    feedback: '십제는 초기 국호였으나, 곧 백제로 개칭되었습니다.'
+                                }
+                            ],
+                            correctSummary: '온조는 백제로 국호를 정하고 백성의 마음을 하나로 모았습니다.'
+                        },
+                        historyNote: '국호 백제는 백성의 결집과 새로운 시작을 상징합니다.',
+                        historySource: '출전: 삼국사기 권23',
+                        reflection: '국가의 이름은 백성이 꿈꾸는 미래를 어떤 방식으로 담아야 할까요?'
+                    }
+                ]
+            }
+        };
+
+        function renderTimeline(storyData) {
+            timelineListEl.innerHTML = '';
+            storyData.timeline.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                timelineListEl.appendChild(li);
+            });
+        }
+
+        function renderSummaryModal(storyData) {
+            summaryModalBody.innerHTML = `
+                <section class="space-y-2">
+                    <h4 class="text-lg font-semibold text-amber-800">📌 핵심 정리</h4>
+                    <ul class="summary-list list-disc ml-5 space-y-1">
+                        ${storyData.summary.map(point => `<li>${point}</li>`).join('')}
+                    </ul>
+                </section>
+                <section class="space-y-2">
+                    <h4 class="text-lg font-semibold text-amber-800">📚 참고 자료</h4>
+                    <ul class="summary-list list-disc ml-5 space-y-1">
+                        ${storyData.resources.map(res => `<li>${res}</li>`).join('')}
+                    </ul>
+                </section>
+            `;
+        }
+
+        function showSummaryModal() {
+            summaryModal.classList.remove('hidden');
+            setTimeout(() => {
+                summaryModal.classList.add('opacity-100');
+                summaryModal.querySelector('.modal-content').classList.add('scale-100');
+                summaryModal.querySelector('.modal-content').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeSummaryModal() {
+            summaryModal.classList.remove('opacity-100');
+            const content = summaryModal.querySelector('.modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => summaryModal.classList.add('hidden'), 250);
+        }
+
+        function updateNavigationControls() {
+            navPrevBtn.classList.toggle('hidden', sceneHistory.length === 0);
+            navRestartBtn.classList.toggle('hidden', !currentStoryData);
+        }
+
+        function updateQuizProgress() {
+            if (!currentStoryData) {
+                quizProgressEl.classList.add('hidden');
+                return;
+            }
+            const total = currentStoryData.sequence.length;
+            const responses = Object.values(userResponses).filter(Boolean);
+            const answered = responses.length;
+            const correct = responses.filter(r => r.correct).length;
+            quizProgressEl.textContent = `진행 ${answered}/${total} | 정답 ${correct}개`;
+            quizProgressEl.classList.toggle('hidden', total === 0);
+        }
+
+        function updateStatusBadge(state) {
+            const baseClasses = ['history-badge', 'border', 'px-3', 'py-1'];
+            historyStatusBadge.className = '';
+            const classList = [ ...baseClasses ];
+            let text = '';
+            switch (state) {
+                case 'correct':
+                    classList.push('bg-emerald-100', 'text-emerald-700', 'border-emerald-300');
+                    text = '정답!';
+                    break;
+                case 'incorrect':
+                    classList.push('bg-rose-100', 'text-rose-700', 'border-rose-300');
+                    text = '다시 생각해 봐요';
+                    break;
+                default:
+                    classList.push('bg-amber-200', 'text-amber-800', 'border-amber-400');
+                    text = '퀴즈 진행 중';
+            }
+            historyStatusBadge.classList.add(...classList);
+            historyStatusBadge.textContent = text;
+        }
+
+        function renderPreviousSummary(summary) {
+            if (!summary) {
+                prevChoiceDisplay.classList.add('hidden');
+                prevChoiceDisplay.innerHTML = '';
+                return;
+            }
+            prevChoiceDisplay.classList.remove('hidden');
+            prevChoiceDisplay.innerHTML = `
+                <p class="text-sm text-stone-500">이전 장면 복습</p>
+                <p class="font-semibold">${parseTextWithKeywords(summary.question)}</p>
+                <p class="${summary.correct ? 'text-emerald-700' : 'text-rose-700'} text-sm">
+                    ${summary.correct ? '✅ 정답 선택' : '❌ 선택한 답'}: ${parseTextWithKeywords(summary.selectedText)}
+                </p>
+                <p class="text-sm text-stone-600">📌 실제 역사: ${parseTextWithKeywords(summary.summary)}</p>
+            `;
+        }
+
+        function updatePostNarration(scene, response) {
+            if (!scene.postNarration) {
+                postNarrationEl.classList.add('hidden');
+                postNarrationEl.innerHTML = '';
+                return;
+            }
+            if (response) {
+                const narrative = scene.postNarration(response) || '';
+                postNarrationEl.innerHTML = parseTextWithKeywords(interpolate(narrative));
+                postNarrationEl.classList.remove('hidden');
+            } else {
+                postNarrationEl.classList.add('hidden');
+                postNarrationEl.innerHTML = '';
+            }
+        }
+
+        function renderScene(sceneIndex, options = {}) {
+            if (!currentStoryData) return;
+            const scene = currentStoryData.sequence[sceneIndex];
+            currentSceneIndex = sceneIndex;
+
+            if (options.summary) {
+                renderPreviousSummary(options.summary);
+            } else {
+                renderPreviousSummary(null);
+            }
+
+            storyYearBadge.textContent = scene.year || '';
+            storyYearBadge.classList.toggle('hidden', !scene.year);
+
+            storyTextEl.innerHTML = parseTextWithKeywords(interpolate(scene.narration()));
+            historyNoteTextEl.innerHTML = parseTextWithKeywords(scene.historyNote || '');
+            historySourceTextEl.textContent = scene.historySource || '';
+
+            if (scene.reflection) {
+                metaQuestionTextEl.innerHTML = parseTextWithKeywords(scene.reflection);
+                metaQuestionEl.classList.remove('hidden');
+            } else {
+                metaQuestionEl.classList.add('hidden');
+                metaQuestionTextEl.innerHTML = '';
+            }
+
+            renderQuestion(scene, userResponses[scene.id]);
+            updateStatusBadge('idle');
+            updateQuizProgress();
+            updatePostNarration(scene, userResponses[scene.id] || null);
+            updateNavigationControls();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuestion(scene, storedResponse) {
+            const question = scene.question;
+            if (!question) {
+                quizQuestionEl.textContent = '';
+                quizOptionsEl.innerHTML = '';
+                quizFeedbackEl.classList.add('hidden');
+                nextSceneBtn.classList.add('hidden');
+                return;
+            }
+
+            quizQuestionEl.innerHTML = parseTextWithKeywords(question.prompt);
+            quizOptionsEl.innerHTML = '';
+            quizFeedbackEl.classList.add('hidden');
+            quizFeedbackEl.textContent = '';
+            nextSceneBtn.classList.add('hidden');
+
+            const correctIndex = question.options.findIndex(opt => opt.correct);
+
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn text-left bg-white border border-amber-300 text-amber-800 font-semibold py-3 px-4 rounded-xl text-base sm:text-lg hover:bg-amber-50';
+                button.dataset.optionIndex = String(index);
+                button.innerHTML = parseTextWithKeywords(option.text);
+                button.addEventListener('click', () => handleOptionSelect(scene, question, index, correctIndex));
+                quizOptionsEl.appendChild(button);
+            });
+
+            if (storedResponse) {
+                populateStoredResponse(scene, question, storedResponse, correctIndex);
+            }
+        }
+
+        function populateStoredResponse(scene, question, response, correctIndex) {
+            const optionButtons = Array.from(quizOptionsEl.querySelectorAll('button'));
+            optionButtons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === correctIndex) {
+                    btn.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-700');
+                }
+                if (idx === response.selectedIndex && !response.correct) {
+                    btn.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-700');
+                }
+            });
+            showFeedback(response.correct, response.feedbackText);
+            nextSceneBtn.classList.remove('hidden');
+            nextSceneBtn.textContent = currentSceneIndex === currentStoryData.sequence.length - 1 ? '보고서 보기' : '다음 장면으로';
+            updateStatusBadge(response.correct ? 'correct' : 'incorrect');
+            updatePostNarration(scene, response);
+        }
+
+        function showFeedback(isCorrect, text) {
+            quizFeedbackEl.className = '';
+            quizFeedbackEl.classList.add('p-3', 'rounded-xl', 'text-sm', 'sm:text-base', 'border');
+            if (isCorrect) {
+                quizFeedbackEl.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-700');
+            } else {
+                quizFeedbackEl.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-700');
+            }
+            quizFeedbackEl.innerHTML = parseTextWithKeywords(text);
+            quizFeedbackEl.classList.remove('hidden');
+        }
+
+        function handleOptionSelect(scene, question, optionIndex, correctIndex) {
+            const optionButtons = Array.from(quizOptionsEl.querySelectorAll('button'));
+            const option = question.options[optionIndex];
+            const isCorrect = !!option.correct;
+            optionButtons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === correctIndex) {
+                    btn.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-700');
+                }
+                if (idx === optionIndex && !isCorrect) {
+                    btn.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-700');
+                }
+            });
+
+            const feedbackText = `${isCorrect ? '정답입니다! ' : '아쉽지만 오답입니다. '}${option.feedback || ''} 실제 역사: ${question.correctSummary}`;
+            showFeedback(isCorrect, feedbackText);
+
+            userResponses[scene.id] = {
+                sceneIndex: currentSceneIndex,
+                question: question.prompt,
+                selectedIndex: optionIndex,
+                selectedText: option.text,
+                correct: isCorrect,
+                correctText: question.options[correctIndex].text,
+                summary: question.correctSummary,
+                feedbackText
+            };
+            pendingSummary = {
+                question: question.prompt,
+                selectedText: option.text,
+                correct: isCorrect,
+                summary: question.correctSummary
+            };
+
+            nextSceneBtn.textContent = currentSceneIndex === currentStoryData.sequence.length - 1 ? '보고서 보기' : '다음 장면으로';
+            nextSceneBtn.classList.remove('hidden');
+            updateStatusBadge(isCorrect ? 'correct' : 'incorrect');
+            updateQuizProgress();
+            updatePostNarration(scene, userResponses[scene.id]);
+        }
+
+        function goToNextScene() {
+            const sequence = currentStoryData.sequence;
+            const scene = sequence[currentSceneIndex];
+            if (!userResponses[scene.id]) return;
+            if (currentSceneIndex === sequence.length - 1) {
+                generateReport();
+                return;
+            }
+            sceneHistory.push(currentSceneIndex);
+            const summary = pendingSummary;
+            pendingSummary = null;
+            renderScene(currentSceneIndex + 1, { summary });
+        }
+
+        function goToPreviousScene() {
+            if (!sceneHistory.length) return;
+            const previousIndex = sceneHistory.pop();
+            pendingSummary = null;
+            renderScene(previousIndex);
+        }
+
+        function startGame(storyId) {
+            currentStoryId = storyId;
+            currentStoryData = storyDatasets[storyId];
+            userInfo.name = (nameInput.value || '').trim() || currentStoryData.defaultName;
+            currentSceneIndex = 0;
+            sceneHistory = [];
+            Object.keys(userResponses).forEach(key => delete userResponses[key]);
+            pendingSummary = null;
+
+            storyHeaderTitle.textContent = `${currentStoryData.title} - ${userInfo.name}`;
+            storyHeaderSubtitle.textContent = currentStoryData.subtitle;
+            renderTimeline(currentStoryData);
+            renderSummaryModal(currentStoryData);
+
+            startScreen.classList.add('hidden');
+            reportScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+
+            renderScene(0);
+        }
+
+        function returnToStart() {
+            currentStoryId = null;
+            currentStoryData = null;
+            currentSceneIndex = 0;
+            sceneHistory = [];
+            Object.keys(userResponses).forEach(key => delete userResponses[key]);
+            pendingSummary = null;
+            gameScreen.classList.add('hidden');
+            reportScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            updateNavigationControls();
+            quizProgressEl.classList.add('hidden');
+        }
+
+        function buildReport() {
+            if (!currentStoryData) return;
+            const sequence = currentStoryData.sequence;
+            const results = sequence.map(scene => ({
+                scene,
+                response: userResponses[scene.id] || null
+            }));
+
+            const correctCount = results.filter(r => r.response && r.response.correct).length;
+            const total = sequence.length;
+
+            reportTitleEl.textContent = `${currentStoryData.title} - 당신의 기록`;
+            reportSubtitleEl.textContent = `${currentStoryData.subtitle}`;
+            reportContentEl.innerHTML = `
+                <p>${userInfo.name} 님은 총 ${total}개의 역사 퀴즈 중 <strong>${correctCount}개</strong>의 정답을 맞혔습니다.</p>
+                <p>각 장면에서 실제 역사와 자신의 생각을 비교해 보세요.</p>
+            `;
+
+            reportStatsEl.textContent = `정답 ${correctCount}개 / ${total}개`;
+            reportChoiceListEl.innerHTML = results.map(({ scene, response }, index) => {
+                const number = index + 1;
+                if (!response) {
+                    return `<li class="border border-amber-100 rounded-xl p-3 bg-stone-50">
+                        <p class="font-semibold text-stone-700">장면 ${number}. ${parseTextWithKeywords(scene.question.prompt)}</p>
+                        <p class="text-sm text-stone-600 mt-1">선택 기록이 없습니다.</p>
+                    </li>`;
+                }
+                const correctnessText = response.correct ? '정답' : '오답';
+                const correctnessClass = response.correct ? 'text-emerald-700' : 'text-rose-700';
+                return `<li class="border border-amber-100 rounded-xl p-3 ${response.correct ? 'bg-emerald-50/70' : 'bg-rose-50/70'}">
+                    <p class="font-semibold text-stone-700">장면 ${number}. ${parseTextWithKeywords(scene.question.prompt)}</p>
+                    <p class="text-sm ${correctnessClass} mt-1">${correctnessText}: ${parseTextWithKeywords(response.selectedText)}</p>
+                    <p class="text-sm text-stone-600 mt-1">📌 실제 역사: ${parseTextWithKeywords(response.summary)}</p>
+                </li>`;
+            }).join('');
+
+            reportResourcesEl.innerHTML = currentStoryData.resources.map(res => `<li>${res}</li>`).join('');
+        }
+
+        function generateReport() {
+            buildReport();
+            gameScreen.classList.add('hidden');
+            reportScreen.classList.remove('hidden');
+            updateNavigationControls();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function downloadReportImage() {
+            const reportCard = reportScreen.querySelector('.w-full');
+            const originalMargin = reportCard.style.margin;
+            reportCard.style.margin = '0 auto';
+            html2canvas(reportCard, { backgroundColor: '#F7F2E7' }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `삼국건국_${currentStoryData?.title || 'report'}_${userInfo.name}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                reportCard.style.margin = originalMargin;
+            }).catch(() => {
+                alert('이미지 저장 중 오류가 발생했습니다.');
+                reportCard.style.margin = originalMargin;
+            });
+        }
+
+        document.querySelectorAll('.story-select-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const storyId = e.currentTarget.dataset.story;
+                startGame(storyId);
+            });
+        });
+
+        nextSceneBtn.addEventListener('click', goToNextScene);
+        navPrevBtn.addEventListener('click', goToPreviousScene);
+        navRestartBtn.addEventListener('click', () => {
+            if (confirm('정말 처음 화면으로 돌아가시겠습니까? 진행 상황이 모두 초기화됩니다.')) {
+                returnToStart();
+            }
+        });
+
+        restartBtn.addEventListener('click', returnToStart);
+        downloadReportBtn.addEventListener('click', downloadReportImage);
+
+        openSummaryBtn.addEventListener('click', showSummaryModal);
+        summaryCloseBtn.addEventListener('click', closeSummaryModal);
+        summaryModal.addEventListener('click', (e) => {
+            if (e.target === summaryModal) closeSummaryModal();
+        });
+
+        modalCloseBtn.addEventListener('click', () => {
+            modalContainer.classList.remove('opacity-100');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => modalContainer.classList.add('hidden'), 250);
+        });
+
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                modalContainer.classList.remove('opacity-100');
+                modalContent.classList.remove('scale-100');
+                modalContent.classList.add('scale-95');
+                setTimeout(() => modalContainer.classList.add('hidden'), 250);
+            }
+        });
+
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('keyword')) return;
+            const keyword = e.target.dataset.keyword;
+            const definition = definitions[keyword];
+            if (!definition) return;
+            modalTitle.textContent = definition.title;
+            modalText.textContent = definition.text;
+            modalContainer.classList.remove('hidden');
+            setTimeout(() => {
+                modalContainer.classList.add('opacity-100');
+                modalContent.classList.add('scale-100');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        });
+
+    })();
+    </script>
+</body>
+</html>
